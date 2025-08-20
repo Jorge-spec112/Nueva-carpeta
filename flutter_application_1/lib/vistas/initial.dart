@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/presentacion/bloc/ranking_bloc.dart';
 import 'package:flutter_application_1/presentacion/bloc/ranking_event.dart';
 import 'package:flutter_application_1/presentacion/bloc/ranking_state.dart';
+import 'package:flutter_application_1/presentacion/cubit/formulario_cubit.dart';
 import 'package:flutter_application_1/presentacion/cubit/formulario_state.dart';
-import 'package:flutter_application_1/presentacion/cubit/jugadores_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class InitialView extends StatelessWidget {
@@ -69,14 +69,7 @@ class InitialView extends StatelessWidget {
                     } else if (state is RankingBlocFailure) {
                       return Center(child: Text("❌ ${state.error}"));
                     }
-                    return Center(
-                      child: ElevatedButton.icon(
-                        onPressed: () =>
-                            context.read<RankingBloc>().add(LoadBlocEvent()),
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Cargar usuarios'),
-                      ),
-                    );
+                    return const Center(child: CircularProgressIndicator());
                   },
                 ),
               ),
@@ -88,7 +81,6 @@ class InitialView extends StatelessWidget {
   }
 }
 
-/// Tarjeta con diseño de Login (correo y contraseña)
 class AuthFormCard extends StatefulWidget {
   const AuthFormCard({super.key});
 
@@ -101,6 +93,23 @@ class _AuthFormCardState extends State<AuthFormCard> {
   final _correoCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   bool _obscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Auto-fill para disparar login automáticamente
+    _correoCtrl.text = "jorge@gmail.com";
+    _passCtrl.text = "123456";
+
+    // Disparamos login al iniciar
+    Future.microtask(() {
+      context.read<FormularioCubit>().enviarDatos(
+        correo: _correoCtrl.text.trim(),
+        contrasena: _passCtrl.text,
+      );
+    });
+  }
 
   @override
   void dispose() {
@@ -204,7 +213,10 @@ class _AuthFormCardState extends State<AuthFormCard> {
                             ? null
                             : () {
                                 if (_formKey.currentState!.validate()) {
-                                  context.read<FormularioCubit>().loadData();
+                                  context.read<FormularioCubit>().enviarDatos(
+                                    correo: _correoCtrl.text.trim(),
+                                    contrasena: _passCtrl.text,
+                                  );
                                 }
                               },
                         style: ElevatedButton.styleFrom(
