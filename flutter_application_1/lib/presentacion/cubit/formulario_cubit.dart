@@ -16,7 +16,7 @@ class FormularioCubit extends Cubit<FormularioState> {
     if (correo.contains('@') && contrasena.length >= 6) {
       emit(const FormularioCubitLoaded(mensaje: "Login exitoso ✅"));
     } else {
-      emit(const FormularioFailure("Correo o contraseña inválidos ❌"));
+      emit(const FormularioFailure("Ingrese Correo y Contraseña"));
     }
   }
 

@@ -98,10 +98,7 @@ class _AuthFormCardState extends State<AuthFormCard> {
   void initState() {
     super.initState();
 
-    // Auto-fill para disparar login automáticamente
-    _correoCtrl.text = "jorge@gmail.com";
-    _passCtrl.text = "123456";
-
+ 
     // Disparamos login al iniciar
     Future.microtask(() {
       context.read<FormularioCubit>().enviarDatos(

@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter_application_1/modelo/jugadores.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
 import 'ranking_event.dart';
 import 'ranking_state.dart';
 
@@ -14,15 +16,24 @@ class RankingBloc extends Bloc<RankingEvent, RankingState> {
   ) async {
     emit(RankingBlocLoading());
 
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final response = await http.get(
+        Uri.parse("https://jsonkeeper.com/b/KDGZM"),
+      );
 
-    final usuarios = [
-      Usuario(nombre: "Jorge", correo: "jorge@gmail.com"),
-      Usuario(nombre: "Paula", correo: "paula@gmail.com"),
-      Usuario(nombre: "Andrea", correo: "andrea@gmail.com"),
-      Usuario(nombre: "Carlos", correo: "carlos@gmail.com"),
-    ];
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
 
-    emit(RankingBlocLoaded(usuarios: usuarios));
+        final usuarios = data
+            .map((e) => Usuario.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        emit(RankingBlocLoaded(usuarios: usuarios));
+      } else {
+        emit(RankingBlocFailure("Error al cargar usuarios"));
+      }
+    } catch (e) {
+      emit(RankingBlocFailure("Excepción: $e"));
+    }
   }
 }
